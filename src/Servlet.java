@@ -42,11 +42,11 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
+		hasConnected();
 		PrintWriter output = response.getWriter();
 		String fileName = request.getParameter("MAC");
 		Boolean foundFile = findFile(fileName+".txt",new File(getServletContext().getRealPath("/")));
-		String date = new Date().toString();
-		saveFile(fileName, request.getParameter("ENTRY"), date, foundFile);
+		saveFile(fileName, request.getParameter("ENTRY"), new Date().toString(), foundFile);
 		output.close();
 		output.flush();
 	}
@@ -91,5 +91,22 @@ public class Servlet extends HttpServlet {
 			return false;
 		}
 		return false;
+	}
+	
+	protected void hasConnected() throws IOException{
+		
+		File outputFile = new File(getServletContext().getRealPath("/")
+	            + "connections.txt");
+		FileWriter fw = new FileWriter(outputFile, true);
+		
+		try{
+		StringBuilder sb = new StringBuilder();
+		sb.append("Someone has connected at: ");
+		sb.append(new Date().toString());
+		fw.write(sb.toString());
+		} finally{
+		fw.close();
+		}
+			
 	}
 }
