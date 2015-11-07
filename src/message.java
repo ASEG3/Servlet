@@ -1,31 +1,23 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+public class Message implements Serializable {
 
-public class message implements Serializable {
+	public static final long serialVersionUID = 1L;
+	public HashMap<String, ArrayList<String>> houses;
 
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	HashMap<String, subMessage> houses;
-	
-	
-	
-	public message(){
-		houses = new HashMap<String, subMessage>();
+	public Message() {
+		houses = new HashMap<String, ArrayList<String>>();
 	}
-	
-	
-	public void addSubMessage(String postcode, subMessage m){
-		houses.put(postcode, m);
+
+	public void addHouseEntry(String houseID, ArrayList<String> houseInformation) {
+		houses.put(houseID, houseInformation);
 	}
-	
-	public subMessage getSubMessage(String postcode){
-		return houses.get(postcode);
-		
+
+	public ArrayList<String> getHouseInformation(String houseID) {
+		return houses.get(houseID);
+
 	}
-	
 
 }
