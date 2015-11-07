@@ -59,11 +59,11 @@ public class Servlet extends HttpServlet {
 
 	public Message createMessage(String longitude, String latitude) {
 		final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_URL = "jdbc:mysql://localhost/ase";
+		final String DB_URL = "jdbc:mysql://52.26.103.67/ase";
 		// Need to change to the proper amazon DB URL ^
 
-		final String USER = "admin@localhost";
-		final String PASS = "";
+		final String USER = "admin";
+		final String PASS = "g3mjhmts";
 
 		// postcodes = checkPostcode(postcodes);
 		PreparedStatement cs = null;
@@ -77,15 +77,17 @@ public class Servlet extends HttpServlet {
 
 			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
-			cs = conn.prepareStatement("exec getSurroundingProperties");
-			cs.setEscapeProcessing(true);
-			cs.setQueryTimeout(120);
+			// cs.setEscapeProcessing(true);
+			// cs.setQueryTimeout(120);
+			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 2)";
+			cs = conn.prepareStatement(SQL);
 
 			rs = cs.executeQuery();
-
+			// System.out.println(rs.toString());
 			while (rs.next()) {
 
 				String houseID = rs.getString(1);
+				// System.out.println(houseID);
 				ArrayList<String> houseInformation = new ArrayList<String>();
 				houseInformation.add(rs.getString(2));
 				houseInformation.add(rs.getString(3));
@@ -130,10 +132,11 @@ public class Servlet extends HttpServlet {
 	public WeightedMessage createWeightedMessage(String longitude, String latitude) {
 
 		final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_URL = "jdbc:mysql://localhost/ase";
+		final String DB_URL = "jdbc:mysql://52.26.103.67/ase";
+
 		// Need to change to the proper amazon DB URL ^
 
-		final String USER = "admin@localhost";
+		final String USER = "admin";
 		final String PASS = "g3mjhmts";
 
 		// postcodes = checkPostcode(postcodes);
@@ -148,19 +151,35 @@ public class Servlet extends HttpServlet {
 
 			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
-			cs = conn.prepareStatement("exec getWeightedLatLong ?,?,?");
-			cs.setEscapeProcessing(true);
-			cs.setQueryTimeout(120);
+			// cs.setEscapeProcessing(true);
+			// cs.setQueryTimeout(120);
+			String SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 2)";
+			cs = conn.prepareStatement(SQL);
 
 			rs = cs.executeQuery();
-			rs.first();
-			double mostExpensive = rs.getDouble(4);
-			rs.last();
-			double leastExpensive = rs.getDouble(4);
+			// System.out.println(rs.toString());
+
+			double mostExpensive = 0;
+			double leastExpensive = 0;
+			// System.out.println("Entering the loop");
+
+			if (rs.last()) {
+				int rows = rs.getRow();
+				// System.out.println(rows);
+				leastExpensive = rs.getDouble(4);
+				rs.beforeFirst();
+
+			}
 
 			while (rs.next()) {
 
+				// System.out.println("Inside the loop");
+				if (rs.getRow() == 1) {
+					mostExpensive = rs.getDouble(4);
+				}
+
 				String houseID = rs.getString(1);
+				// System.out.println(houseID);
 				ArrayList<Double> houseValues = new ArrayList<Double>();
 				houseValues.add(rs.getDouble(2));
 				houseValues.add(rs.getDouble(3));
@@ -170,6 +189,8 @@ public class Servlet extends HttpServlet {
 				wm.addPostcodeWeight(houseID, houseValues);
 
 			}
+
+			// System.out.println("Exeted the loop");
 
 			rs.close();
 			cs.close();
