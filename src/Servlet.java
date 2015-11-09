@@ -4,15 +4,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -42,185 +36,27 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		System.out.println(dateFormat.format(new Date()));
 		OutputStream outputStream = response.getOutputStream();
 		String longitude = request.getParameter("longitude");
 		String latitude = request.getParameter("latitude");
-		Message m = createMessage(longitude, latitude);
-		WeightedMessage wm = createWeightedMessage(longitude, latitude);
+		DatabaseAccess db = new DatabaseAccess();
+		db.runQueries(longitude, latitude);
+		System.out.println(dateFormat.format(new Date()));
+		Message m = db.getMessage();
+		WeightedMessage wm = db.getWeightedMessage();
 		ContainerObject fullMessage = new ContainerObject(m, wm);
+		System.out.println(dateFormat.format(new Date()));
 		outputStream.write(fromJavaToByteArray(fullMessage));
+		System.out.println(dateFormat.format(new Date()));
 		outputStream.close();
 		outputStream.flush();
 
 	}
 
-	public Message createMessage(String longitude, String latitude) {
-		final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_URL = "jdbc:mysql://52.33.206.187/ase";
-		// Need to change to the proper amazon DB URL ^
-
-		final String USER = "admin";
-		final String PASS = "g3mjhmts";
-
-		PreparedStatement cs = null;
-		Connection conn = null;
-		ResultSet rs = null;
-		Message m = new Message();
-
-		try {
-			// Register JDBC driver
-			Class.forName("com.mysql.jdbc.Driver");
-
-			// Open a connection
-			conn = DriverManager.getConnection(DB_URL, USER, PASS);
-			// cs.setEscapeProcessing(true);
-			// cs.setQueryTimeout(120);
-			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 1)";
-			cs = conn.prepareStatement(SQL);
-
-			rs = cs.executeQuery();
-			// System.out.println(rs.toString());
-			while (rs.next()) {
-
-				ArrayList<String> houseInformation = new ArrayList<String>();
-				houseInformation.add(rs.getString(1));
-				houseInformation.add(rs.getString(2));
-				houseInformation.add(rs.getString(3));
-				houseInformation.add(rs.getString(4));
-				houseInformation.add(rs.getString(5));
-				houseInformation.add(rs.getString(6));
-				houseInformation.add(rs.getString(7));
-				houseInformation.add(rs.getString(8));
-				houseInformation.add(rs.getString(9));
-				houseInformation.add(rs.getString(10));
-				m.addHouseEntryNew(houseInformation);
-
-			}
-
-			rs.close();
-			cs.close();
-			conn.close();
-		} catch (SQLException e) {
-
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		} finally {
-			try {
-				if (cs != null)
-					cs.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
-
-		return m;
-
-	}
-
-	public WeightedMessage createWeightedMessage(String longitude, String latitude) {
-
-		final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_URL = "jdbc:mysql://52.33.206.187/ase";
-
-		// Need to change to the proper amazon DB URL ^
-
-		final String USER = "admin";
-		final String PASS = "g3mjhmts";
-
-		// postcodes = checkPostcode(postcodes);
-		PreparedStatement cs = null;
-		Connection conn = null;
-		ResultSet rs = null;
-		WeightedMessage wm = new WeightedMessage();
-
-		try {
-			// Register JDBC driver
-			Class.forName("com.mysql.jdbc.Driver");
-
-			// Open a connection
-			conn = DriverManager.getConnection(DB_URL, USER, PASS);
-			// cs.setEscapeProcessing(true);
-			// cs.setQueryTimeout(120);
-			String SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 1)";
-			cs = conn.prepareStatement(SQL);
-
-			rs = cs.executeQuery();
-			// System.out.println(rs.toString());
-
-			double mostExpensive = 0;
-			double leastExpensive = 0;
-			// System.out.println("Entering the loop");
-
-			if (rs.last()) {
-				int rows = rs.getRow();
-				// System.out.println(rows);
-				leastExpensive = rs.getDouble(4);
-				rs.beforeFirst();
-
-			}
-
-			while (rs.next()) {
-
-				// System.out.println("Inside the loop");
-				if (rs.getRow() == 1) {
-					mostExpensive = rs.getDouble(4);
-				}
-
-				String houseID = rs.getString(1);
-				ArrayList<Double> houseValues = new ArrayList<Double>();
-				houseValues.add(rs.getDouble(2));
-				houseValues.add(rs.getDouble(3));
-				double average = rs.getDouble(4);
-				double weightedAverage = performWeightCalculation(average, leastExpensive, mostExpensive);
-				houseValues.add(weightedAverage);
-				wm.addWeight(houseValues);
-
-			}
-
-			wm.setLeastExpensive(leastExpensive);
-			wm.setMostExpensive(mostExpensive);
-
-			rs.close();
-			cs.close();
-			conn.close();
-		} catch (SQLException e) {
-
-			e.printStackTrace();
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		} finally {
-			try {
-				if (cs != null)
-					cs.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
-
-		return wm;
-
-	}
-
 	public static byte[] fromJavaToByteArray(Serializable object) {
 		return SerializationUtils.serialize(object);
-	}
-
-	public double performWeightCalculation(double ap, double le, double me) {
-		return (ap - le) / (me - le);
 	}
 
 	/**
@@ -296,22 +132,5 @@ public class Servlet extends HttpServlet {
 		} finally {
 			fw.close();
 		}
-
-	}
-
-	public ArrayList<String> checkPostcode(ArrayList<String> postcodes) {
-		ArrayList<String> verifiedPostcodes = new ArrayList<String>();
-		String regex = "^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][ABD-HJLNP-UW-Z]{2}$";
-
-		Pattern pattern = Pattern.compile(regex);
-
-		for (String postcode : postcodes) {
-			Matcher matcher = pattern.matcher(postcode);
-			if (matcher.matches()) {
-				verifiedPostcodes.add(postcode);
-			}
-		}
-
-		return verifiedPostcodes;
 	}
 }
