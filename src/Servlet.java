@@ -63,7 +63,6 @@ public class Servlet extends HttpServlet {
 		final String USER = "admin";
 		final String PASS = "g3mjhmts";
 
-		// postcodes = checkPostcode(postcodes);
 		PreparedStatement cs = null;
 		Connection conn = null;
 		ResultSet rs = null;
