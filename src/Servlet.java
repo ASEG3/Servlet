@@ -57,7 +57,7 @@ public class Servlet extends HttpServlet {
 
 	public Message createMessage(String longitude, String latitude) {
 		final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_URL = "jdbc:mysql://52.26.103.67/ase";
+		final String DB_URL = "jdbc:mysql://52.33.206.187/ase";
 		// Need to change to the proper amazon DB URL ^
 
 		final String USER = "admin";
@@ -76,7 +76,7 @@ public class Servlet extends HttpServlet {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			// cs.setEscapeProcessing(true);
 			// cs.setQueryTimeout(120);
-			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 2)";
+			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 1)";
 			cs = conn.prepareStatement(SQL);
 
 			rs = cs.executeQuery();
@@ -128,7 +128,7 @@ public class Servlet extends HttpServlet {
 	public WeightedMessage createWeightedMessage(String longitude, String latitude) {
 
 		final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_URL = "jdbc:mysql://52.26.103.67/ase";
+		final String DB_URL = "jdbc:mysql://52.33.206.187/ase";
 
 		// Need to change to the proper amazon DB URL ^
 
@@ -149,7 +149,7 @@ public class Servlet extends HttpServlet {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			// cs.setEscapeProcessing(true);
 			// cs.setQueryTimeout(120);
-			String SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 2)";
+			String SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 1)";
 			cs = conn.prepareStatement(SQL);
 
 			rs = cs.executeQuery();
