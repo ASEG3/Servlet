@@ -44,14 +44,12 @@ public class Servlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		OutputStream outputStream = response.getOutputStream();
-		// Enumeration<String> parameterNames = request.getParameterNames();
-		// ArrayList<String> postcodes = checkPostcode(new ArrayList<String>());
 		String longitude = request.getParameter("longitude");
 		String latitude = request.getParameter("latitude");
 		Message m = createMessage(longitude, latitude);
 		WeightedMessage wm = createWeightedMessage(longitude, latitude);
-		outputStream.write(fromJavaToByteArray(m));
-		outputStream.write(fromJavaToByteArray(wm));
+		ContainerObject fullMessage = new ContainerObject(m, wm);
+		outputStream.write(fromJavaToByteArray(fullMessage));
 		outputStream.close();
 		outputStream.flush();
 
@@ -86,9 +84,8 @@ public class Servlet extends HttpServlet {
 			// System.out.println(rs.toString());
 			while (rs.next()) {
 
-				String houseID = rs.getString(1);
-				// System.out.println(houseID);
 				ArrayList<String> houseInformation = new ArrayList<String>();
+				houseInformation.add(rs.getString(1));
 				houseInformation.add(rs.getString(2));
 				houseInformation.add(rs.getString(3));
 				houseInformation.add(rs.getString(4));
@@ -98,7 +95,7 @@ public class Servlet extends HttpServlet {
 				houseInformation.add(rs.getString(8));
 				houseInformation.add(rs.getString(9));
 				houseInformation.add(rs.getString(10));
-				m.addHouseEntry(houseID, houseInformation);
+				m.addHouseEntryNew(houseInformation);
 
 			}
 
@@ -179,7 +176,6 @@ public class Servlet extends HttpServlet {
 				}
 
 				String houseID = rs.getString(1);
-				// System.out.println(houseID);
 				ArrayList<Double> houseValues = new ArrayList<Double>();
 				houseValues.add(rs.getDouble(2));
 				houseValues.add(rs.getDouble(3));
@@ -187,10 +183,9 @@ public class Servlet extends HttpServlet {
 				double weightedAverage = performWeightCalculation(average, leastExpensive, mostExpensive);
 				houseValues.add(weightedAverage);
 				wm.addPostcodeWeight(houseID, houseValues);
+				wm.addWeight(houseValues);
 
 			}
-
-			// System.out.println("Exeted the loop");
 
 			rs.close();
 			cs.close();
