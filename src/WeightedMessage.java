@@ -1,24 +1,15 @@
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class WeightedMessage implements Serializable {
 
 	public static final long serialVersionUID = 1L;
-	public HashMap<String, ArrayList<Double>> weightedAverages;
 	public ArrayList<ArrayList<Double>> weightedAverage;
+	private double mostExpensive;
+	private double leastExpensive;
 
 	public WeightedMessage() {
-		weightedAverages = new HashMap<String, ArrayList<Double>>();
 		weightedAverage = new ArrayList<ArrayList<Double>>();
-	}
-
-	public void addPostcodeWeight(String postcode, ArrayList<Double> values) {
-		weightedAverages.put(postcode, values);
-	}
-
-	public ArrayList<Double> getPostcodeWeight(String postcode) {
-		return weightedAverages.get(postcode);
 	}
 
 	public ArrayList<Double> getHouse(int i) {
@@ -35,6 +26,22 @@ public class WeightedMessage implements Serializable {
 
 	public ArrayList<ArrayList<Double>> getHouse() {
 		return weightedAverage;
+	}
+
+	public void setLeastExpensive(double leastExpensive) {
+		this.leastExpensive = leastExpensive;
+	}
+
+	public double getLeastExpensive() {
+		return leastExpensive;
+	}
+
+	public void setMostExpensive(double mostExpensive) {
+		this.mostExpensive = mostExpensive;
+	}
+
+	public double getMostExpensive() {
+		return mostExpensive;
 	}
 
 }

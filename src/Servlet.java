@@ -181,10 +181,12 @@ public class Servlet extends HttpServlet {
 				double average = rs.getDouble(4);
 				double weightedAverage = performWeightCalculation(average, leastExpensive, mostExpensive);
 				houseValues.add(weightedAverage);
-				wm.addPostcodeWeight(houseID, houseValues);
 				wm.addWeight(houseValues);
 
 			}
+
+			wm.setLeastExpensive(leastExpensive);
+			wm.setMostExpensive(mostExpensive);
 
 			rs.close();
 			cs.close();
