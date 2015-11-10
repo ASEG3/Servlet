@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -36,20 +34,16 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		System.out.println(dateFormat.format(new Date()));
+
 		OutputStream outputStream = response.getOutputStream();
 		String longitude = request.getParameter("longitude");
 		String latitude = request.getParameter("latitude");
 		DatabaseAccess db = new DatabaseAccess();
 		db.runQueries(longitude, latitude);
-		System.out.println(dateFormat.format(new Date()));
 		Message m = db.getMessage();
 		WeightedMessage wm = db.getWeightedMessage();
 		ContainerObject fullMessage = new ContainerObject(m, wm);
-		System.out.println(dateFormat.format(new Date()));
 		outputStream.write(fromJavaToByteArray(fullMessage));
-		System.out.println(dateFormat.format(new Date()));
 		outputStream.close();
 		outputStream.flush();
 
@@ -68,7 +62,6 @@ public class Servlet extends HttpServlet {
 
 		hasConnected();
 		PrintWriter output = response.getWriter();
-		System.out.println(request.getParameter("MAC"));
 		String fileName = request.getParameter("MAC");
 		Boolean foundFile = findFile(fileName + ".txt", new File(getServletContext().getRealPath("/")));
 		saveFile(fileName, request.getParameter("ENTRY"), new Date().toString(), foundFile);

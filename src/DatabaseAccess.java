@@ -9,12 +9,12 @@ import java.util.regex.Pattern;
 
 public class DatabaseAccess {
 
-	final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	final String DB_URL = "jdbc:mysql://52.33.206.187/ase";
-	final String USER = "admin";
-	final String PASS = "g3mjhmts";
-	Message message;
-	WeightedMessage weightedMessage;
+	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	private final String DB_URL = "jdbc:mysql://localhost/ase";
+	private final String USER = "admin";
+	private final String PASS = "g3mjhmts"; // Not good practice, I know
+	private Message message;
+	private WeightedMessage weightedMessage;
 
 	public DatabaseAccess() {
 		message = new Message();
@@ -28,18 +28,13 @@ public class DatabaseAccess {
 		ResultSet rs = null;
 
 		try {
-			// Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
-
-			// Open a connection
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			// cs.setEscapeProcessing(true);
 			// cs.setQueryTimeout(120);
 			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 1)";
 			cs = conn.prepareStatement(SQL);
-
 			rs = cs.executeQuery();
-			// System.out.println(rs.toString());
 			while (rs.next()) {
 
 				ArrayList<String> houseInformation = new ArrayList<String>();
@@ -59,19 +54,15 @@ public class DatabaseAccess {
 
 			rs.close();
 			cs.close();
+
 			SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 1)";
 			cs = conn.prepareStatement(SQL);
-
 			rs = cs.executeQuery();
-			// System.out.println(rs.toString());
 
 			double mostExpensive = 0;
 			double leastExpensive = 0;
-			// System.out.println("Entering the loop");
 
 			if (rs.last()) {
-				int rows = rs.getRow();
-				// System.out.println(rows);
 				leastExpensive = rs.getDouble(4);
 				rs.beforeFirst();
 
@@ -79,12 +70,10 @@ public class DatabaseAccess {
 
 			while (rs.next()) {
 
-				// System.out.println("Inside the loop");
 				if (rs.getRow() == 1) {
 					mostExpensive = rs.getDouble(4);
 				}
 
-				String houseID = rs.getString(1);
 				ArrayList<Double> houseValues = new ArrayList<Double>();
 				houseValues.add(rs.getDouble(2));
 				houseValues.add(rs.getDouble(3));
@@ -115,14 +104,14 @@ public class DatabaseAccess {
 				if (cs != null)
 					cs.close();
 			} catch (SQLException se2) {
-			} // nothing we can do
+			}
 			try {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException se) {
 				se.printStackTrace();
-			} // end finally try
-		} // end try
+			}
+		}
 
 	}
 

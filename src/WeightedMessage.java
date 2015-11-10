@@ -3,8 +3,8 @@ import java.util.ArrayList;
 
 public class WeightedMessage implements Serializable {
 
-	public static final long serialVersionUID = 1L;
-	public ArrayList<ArrayList<Double>> weightedAverage;
+	private static final long serialVersionUID = 1L;
+	private ArrayList<ArrayList<Double>> weightedAverage;
 	private double mostExpensive;
 	private double leastExpensive;
 
