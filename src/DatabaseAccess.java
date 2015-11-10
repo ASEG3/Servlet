@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import MessageUtils.Message;
+import MessageUtils.WeightedMessage;
+
 public class DatabaseAccess {
 
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	private final String DB_URL = "jdbc:mysql://localhost/ase";
+	private final String DB_URL = "jdbc:mysql://52.33.212.198/ase";
 	private final String USER = "admin";
 	private final String PASS = "g3mjhmts"; // Not good practice, I know
 	private Message message;

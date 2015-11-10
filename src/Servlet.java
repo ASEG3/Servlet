@@ -14,6 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.SerializationUtils;
 
+import MessageUtils.ContainerObject;
+import MessageUtils.Message;
+import MessageUtils.WeightedMessage;
+
 /**
  * Servlet implementation class Servlet
  */
