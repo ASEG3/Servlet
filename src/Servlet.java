@@ -14,9 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.SerializationUtils;
 
-import MessageUtils.ContainerObject;
-import MessageUtils.Message;
-import MessageUtils.WeightedMessage;
+import messageUtils.Message;
 
 /**
  * Servlet implementation class Servlet
@@ -44,10 +42,8 @@ public class Servlet extends HttpServlet {
 		String latitude = request.getParameter("latitude");
 		DatabaseAccess db = new DatabaseAccess();
 		db.runQueries(longitude, latitude);
-		Message m = db.getMessage();
-		WeightedMessage wm = db.getWeightedMessage();
-		ContainerObject fullMessage = new ContainerObject(m, wm);
-		outputStream.write(fromJavaToByteArray(fullMessage));
+		Message fullMesage = db.getMessage();
+		outputStream.write(fromJavaToByteArray(fullMesage));
 		outputStream.close();
 		outputStream.flush();
 

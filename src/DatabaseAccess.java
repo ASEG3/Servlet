@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import MessageUtils.Message;
-import MessageUtils.WeightedMessage;
+import messageUtils.Message;
 
 public class DatabaseAccess {
 
@@ -17,11 +16,9 @@ public class DatabaseAccess {
 	private final String USER = "admin";
 	private final String PASS = "g3mjhmts"; // Not good practice, I know
 	private Message message;
-	private WeightedMessage weightedMessage;
 
 	public DatabaseAccess() {
 		message = new Message();
-		weightedMessage = new WeightedMessage();
 
 	}
 
@@ -83,12 +80,12 @@ public class DatabaseAccess {
 				double average = rs.getDouble(4);
 				double weightedAverage = performWeightCalculation(average, leastExpensive, mostExpensive);
 				houseValues.add(weightedAverage);
-				weightedMessage.addWeight(houseValues);
+				message.addWeight(houseValues);
 
 			}
 
-			weightedMessage.setLeastExpensive(leastExpensive);
-			weightedMessage.setMostExpensive(mostExpensive);
+			message.setLeastExpensive(leastExpensive);
+			message.setMostExpensive(mostExpensive);
 
 			rs.close();
 			cs.close();
@@ -120,10 +117,6 @@ public class DatabaseAccess {
 
 	public Message getMessage() {
 		return message;
-	}
-
-	public WeightedMessage getWeightedMessage() {
-		return weightedMessage;
 	}
 
 	public double performWeightCalculation(double ap, double le, double me) {
