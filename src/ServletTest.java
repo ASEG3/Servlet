@@ -1,6 +1,8 @@
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 
@@ -27,9 +29,9 @@ public class ServletTest {
 		request.addParameter("latitude", value);
 		request.addParameter("longitude", value);
 
-		// servlet.doPost(request, response);
+		servlet.doPost(request, response);
 
-		// assertEquals(500, response.getStatus());
+		assertEquals(500, response.getStatus());
 
 	}
 
@@ -55,6 +57,26 @@ public class ServletTest {
 
 		assertEquals(500, response.getStatus());
 
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void checkPostcodeValidator() {
+		String value = new String("BN 19RH");
+		ArrayList<String> postcode = new ArrayList<String>(Arrays.asList(value));
+
+		// Should return false, accepted is BN1 9RH or BN19RH
+		DatabaseAccess db = new DatabaseAccess();
+		assertEquals(0, db.checkPostcode(postcode).size());
+
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void divideByZero() {
+		double values = 0;
+		DatabaseAccess d = new DatabaseAccess();
+		assertEquals(1, d.performWeightCalculation(values, values, values));
 	}
 
 	@Test

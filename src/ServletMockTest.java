@@ -69,16 +69,24 @@ public class ServletMockTest {
 		Assert.assertEquals(expectedCode, factory.getMockResponse().getStatusCode());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
-	public void doNullGetPostcode() {
+	public void doInvalidLongLatValues() {
+		// Middle of the atlantic ocean!
+		tester.addRequestParameter("longitude", "0");
+		tester.addRequestParameter("latitude", "0");
 		tester.doGet();
+		Assert.assertEquals(500, factory.getMockResponse().getStatusCode());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void doNullPostcodeValues() {
-
+		String r = null;
+		tester.addRequestParameter("longitude", r);
+		tester.addRequestParameter("latitude", r);
 		tester.doGet();
-		// test postcode param values
+		Assert.assertEquals(500, factory.getMockResponse().getStatusCode());
 
 	}
 
