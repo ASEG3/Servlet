@@ -73,6 +73,19 @@ public class ServletTest {
 
 	@SuppressWarnings("deprecation")
 	@Test
+	public void checkOneEntry() {
+
+		double averagePrice = 190000;
+		double leastExpensive = 190000;
+		double mostExpensive = 190000;
+		DatabaseAccess d = new DatabaseAccess();
+		assertEquals(1, d.performWeightCalculation(averagePrice, leastExpensive, mostExpensive));
+
+		// Helped to discover a bug
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
 	public void divideByZero() {
 		double values = 0;
 		DatabaseAccess d = new DatabaseAccess();
