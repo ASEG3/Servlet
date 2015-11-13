@@ -12,7 +12,7 @@ import messageUtils.Message;
 public class DatabaseAccess {
 
 	private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	private final String DB_URL = "jdbc:mysql://52.33.212.198/ase";
+	private final String DB_URL = "jdbc:mysql://52.33.174.180/ase";
 	private final String USER = "admin";
 	private final String PASS = "g3mjhmts"; // Not good practice, I know
 	private Message message;
@@ -32,7 +32,7 @@ public class DatabaseAccess {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			// cs.setEscapeProcessing(true);
 			// cs.setQueryTimeout(120);
-			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 1)";
+			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 3)";
 			cs = conn.prepareStatement(SQL);
 			rs = cs.executeQuery();
 			while (rs.next()) {
@@ -55,7 +55,7 @@ public class DatabaseAccess {
 			rs.close();
 			cs.close();
 
-			SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 1)";
+			SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 3)";
 			cs = conn.prepareStatement(SQL);
 			rs = cs.executeQuery();
 
@@ -80,6 +80,7 @@ public class DatabaseAccess {
 				double average = rs.getDouble(4);
 				double weightedAverage = performWeightCalculation(average, leastExpensive, mostExpensive);
 				houseValues.add(weightedAverage);
+				houseValues.add(average);
 				message.addWeight(houseValues);
 
 			}
@@ -120,7 +121,12 @@ public class DatabaseAccess {
 	}
 
 	public double performWeightCalculation(double ap, double le, double me) {
-		return (ap - le) / (me - le);
+		if (le == me) {
+			// If we have just one entry, or multiple entries with equal price
+			return 1;
+		} else {
+			return (ap - le) / (me - le);
+		}
 	}
 
 	public ArrayList<String> checkPostcode(ArrayList<String> postcodes) {

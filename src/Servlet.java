@@ -42,8 +42,11 @@ public class Servlet extends HttpServlet {
 		String latitude = request.getParameter("latitude");
 		DatabaseAccess db = new DatabaseAccess();
 		db.runQueries(longitude, latitude);
-		Message fullMesage = db.getMessage();
-		outputStream.write(fromJavaToByteArray(fullMesage));
+		System.out.println("Running!");
+		Message fullMessage = db.getMessage();
+		System.out.println(fullMessage.getHouse().size());
+		System.out.println(fullMessage.getHouses().size());
+		outputStream.write(fromJavaToByteArray(fullMessage));
 		outputStream.close();
 		outputStream.flush();
 
