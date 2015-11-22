@@ -152,7 +152,7 @@ public class DatabaseAccess {
 					continue;
 				} else if(isHouseOnlyRequest || isFlatOnlyRequest || thisYearOnly || specificYear != 0){
 					ArrayList<Double> values = placesToRemove.get(rs.getString(1));
-					if(values.contains(rs.getString(5))) continue;
+					if(values != null && values.contains(rs.getString(5))) continue;
 				} 
 				else{
 				
