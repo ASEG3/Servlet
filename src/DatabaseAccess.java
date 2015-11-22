@@ -226,6 +226,29 @@ public class DatabaseAccess {
 			cs = conn.prepareStatement(SQL);
 			rs = cs.executeQuery();
 			while (rs.next()) {
+				int size = message.getSizeOfNewHouses();
+				
+				
+				ArrayList<String> houseInformation = new ArrayList<String>();
+				houseInformation.add(rs.getString(1));
+				houseInformation.add(rs.getString(2));
+				houseInformation.add(rs.getString(3));
+				houseInformation.add(rs.getString(4));
+				houseInformation.add(rs.getString(5));
+				houseInformation.add(rs.getString(6));
+				houseInformation.add(rs.getString(7));
+				houseInformation.add(rs.getString(8));
+				houseInformation.add(rs.getString(9));
+				houseInformation.add(rs.getString(10));
+				message.addHouseEntryNew(houseInformation);
+				
+				if(size == 10){
+					rs.last();
+				} else if(size > 10 & size < 20){
+					rs.previous();
+				} else {
+					break;
+				}
 
 			//Add code
 			}

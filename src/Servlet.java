@@ -54,7 +54,11 @@ public class Servlet extends HttpServlet {
 			db.setSpecificYear(Integer.parseInt(request.getParameter("specificYear")));
 		}
 		
-		db.runQueries(longitude, latitude);
+		if(request.getParameterMap().containsKey("topLeastAndMostExpensive")){
+			db.getMostAndLeastExpensivePostCodes(longitude, latitude);
+		} else {	
+			db.runQueries(longitude, latitude);
+		}
 		System.out.println("Running!");
 		Message fullMessage = db.getMessage();
 		System.out.println(fullMessage.getHouse().size());
