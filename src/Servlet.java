@@ -41,6 +41,19 @@ public class Servlet extends HttpServlet {
 		String longitude = request.getParameter("longitude");
 		String latitude = request.getParameter("latitude");
 		DatabaseAccess db = new DatabaseAccess();
+		if(request.getParameterMap().containsKey("budget")){
+			db.setbudget(Double.parseDouble(request.getParameter("budget")));
+			db.setIsBudgetRequest();		
+		}
+		
+		//Set personalised settings
+		if(request.getParameterMap().containsKey("housesOnly")) db.setIsHouseOnlyRequest();
+		if(request.getParameterMap().containsKey("flatsOnly")) db.setIsFlatOnlyRequest();
+		if(request.getParameterMap().containsKey("thisYearOnly")) db.setThisYearOnly();
+		if(request.getParameterMap().containsKey("specificYear")) {
+			db.setSpecificYear(Integer.parseInt(request.getParameter("specificYear")));
+		}
+		
 		db.runQueries(longitude, latitude);
 		System.out.println("Running!");
 		Message fullMessage = db.getMessage();
