@@ -22,11 +22,10 @@ public class DatabaseAccess {
 	private boolean isBudgetRequest;
 	private boolean isHouseOnlyRequest;
 	private boolean isFlatOnlyRequest;
-	private HashMap<String, ArrayList<Double>> placesToRemove = new HashMap<String, ArrayList<Double>>();
+	private HashMap<String, ArrayList<Integer>> placesToRemove = new HashMap<String, ArrayList<Integer>>();
 	private boolean thisYearOnly;
 	private int specificYear;
 	Calendar calendar = new GregorianCalendar();
-	private HashMap<String, Boolean> weightsToRemove = new HashMap<String, Boolean>();
 	
 	public DatabaseAccess() {
 		message = new Message();
@@ -35,8 +34,7 @@ public class DatabaseAccess {
 	
 	public static void main(String[] args){
 		DatabaseAccess db = new DatabaseAccess();
-		db.setSpecificYear(2010);
-		db.runQueries("51.117930736089", "-0.207110183901943");
+		db.getMostAndLeastExpensivePostCodes("51.117930736089", "-0.207110183901943");
 		System.out.println(db.getMessage().getSizeOfNewHouses());
 		System.out.println(db.getMessage().getSizeOfWeighted());
 	}
@@ -65,14 +63,18 @@ public class DatabaseAccess {
 		specificYear = year;
 	}
 	
-	private void addToArrayList(String postcode, double distance){
-		ArrayList<Double> values = placesToRemove.get(postcode);
+	private void incrementFilterValue(String postcode){
+		ArrayList<Integer> values = placesToRemove.get(postcode);
+		values.add(1);
+	}
+	
+	private void incrementPostcodesValue(String postcode){
+		ArrayList<Integer> values = placesToRemove.get(postcode);
 		if(values !=null){
-		values.add(distance);
-		} else{
-			values = new ArrayList<Double>();
-			values.add(distance);
-		}
+		Integer i = values.remove(0);
+		i++;
+		values.add(0, i);
+		} 
 		placesToRemove.put(postcode, values);
 	}
 	
@@ -94,32 +96,36 @@ public class DatabaseAccess {
 			while (rs.next()) {
 				
 				
-				System.out.println(rs.getType());
 				String postcode = rs.getString(7);
-				double distance = rs.getDouble(10);
+				
+				if(placesToRemove.containsKey(postcode)){
+					incrementPostcodesValue(postcode);
+				} else {
+					ArrayList<Integer> values = new ArrayList<Integer>();
+					values.add(1);
+					placesToRemove.put(postcode, values);			
+				}
 				
 				if(isBudgetRequest && rs.getDouble(8) > budget){
 					continue;
 				} else if(isHouseOnlyRequest && !rs.getString(3).equals("")) {
-					System.out.println(postcode +"" + distance);
-					addToArrayList(postcode, distance);
+					incrementFilterValue(postcode);
 					continue;
 				} else if(isFlatOnlyRequest && rs.getString(3).equals("")){
-					addToArrayList(postcode, distance);
+					incrementFilterValue(postcode);
 					continue;
 				} else if(thisYearOnly){
 					int dateSold = Integer.parseInt(rs.getString(9).substring(0,4));
 					int currentYear = calendar.get(Calendar.YEAR);
 					if(dateSold != currentYear){
 						System.out.println("adding it");
-						addToArrayList(postcode, distance);
+						incrementFilterValue(postcode);
 						continue;
 					} 
 				} else if(specificYear != 0){
 					int dateSold = Integer.parseInt(rs.getString(9).substring(0,4));
-					System.out.println(dateSold);
 					if(dateSold != specificYear){
-						addToArrayList(postcode, distance);
+						incrementFilterValue(postcode);
 						continue;
 					}
 				}
@@ -163,16 +169,19 @@ public class DatabaseAccess {
 					mostExpensive = rs.getDouble(4);
 				}
 				
+				String postcode = rs.getString(1);
+				
 				if(isBudgetRequest && rs.getDouble(4) > budget){
 					continue;
-				}else if (placesToRemove.containsKey(rs.getString(1))){
-					if(placesToRemove.get(rs.getString(1)).contains(rs.getDouble(5))){
+				}else if (placesToRemove.containsKey(postcode)){
+					Integer i = placesToRemove.get(postcode).remove(0)/2;
+					if(placesToRemove.get(postcode).size()-1 >  i){
 					continue;
 					}
 				}
 				
 				
-				System.out.println("here");
+
 				ArrayList<Double> houseValues = new ArrayList<Double>();
 				houseValues.add(rs.getDouble(2));
 				houseValues.add(rs.getDouble(3));
