@@ -3,9 +3,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +14,7 @@ import messageUtils.Message;
 
 public class DatabaseAccess {
 
-	private final String DB_URL = "jdbc:mysql://52.33.174.180/ase";
+	private final String DB_URL = "jdbc:mysql://52.10.109.23/ase";
 	private final String USER = "admin";
 	private final String PASS = "g3mjhmts"; // Not good practice, I know
 	private Message message;
@@ -25,10 +25,20 @@ public class DatabaseAccess {
 	private HashMap<String, ArrayList<Double>> placesToRemove = new HashMap<String, ArrayList<Double>>();
 	private boolean thisYearOnly;
 	private int specificYear;
+	Calendar calendar = new GregorianCalendar();
+	private HashMap<String, Boolean> weightsToRemove = new HashMap<String, Boolean>();
 	
 	public DatabaseAccess() {
 		message = new Message();
 
+	}
+	
+	public static void main(String[] args){
+		DatabaseAccess db = new DatabaseAccess();
+		db.setSpecificYear(2010);
+		db.runQueries("51.117930736089", "-0.207110183901943");
+		System.out.println(db.getMessage().getSizeOfNewHouses());
+		System.out.println(db.getMessage().getSizeOfWeighted());
 	}
 	
 	public void setbudget(double budget){
@@ -83,32 +93,37 @@ public class DatabaseAccess {
 			rs = cs.executeQuery();
 			while (rs.next()) {
 				
+				
+				System.out.println(rs.getType());
 				String postcode = rs.getString(7);
 				double distance = rs.getDouble(10);
 				
 				if(isBudgetRequest && rs.getDouble(8) > budget){
 					continue;
 				} else if(isHouseOnlyRequest && !rs.getString(3).equals("")) {
+					System.out.println(postcode +"" + distance);
 					addToArrayList(postcode, distance);
 					continue;
 				} else if(isFlatOnlyRequest && rs.getString(3).equals("")){
 					addToArrayList(postcode, distance);
 					continue;
 				} else if(thisYearOnly){
-					int dateSold = Integer.parseInt(rs.getString(9).substring(0,3));
-					int currentYear = Year.now().getValue();
+					int dateSold = Integer.parseInt(rs.getString(9).substring(0,4));
+					int currentYear = calendar.get(Calendar.YEAR);
 					if(dateSold != currentYear){
+						System.out.println("adding it");
 						addToArrayList(postcode, distance);
-					}					
+						continue;
+					} 
 				} else if(specificYear != 0){
-					int dateSold = Integer.parseInt(rs.getString(9).substring(0,3));
+					int dateSold = Integer.parseInt(rs.getString(9).substring(0,4));
+					System.out.println(dateSold);
 					if(dateSold != specificYear){
 						addToArrayList(postcode, distance);
+						continue;
 					}
 				}
-				else{
-					
-					
+
 
 				ArrayList<String> houseInformation = new ArrayList<String>();
 				houseInformation.add(rs.getString(1));
@@ -124,7 +139,7 @@ public class DatabaseAccess {
 				message.addHouseEntryNew(houseInformation);
 				}
 
-			}
+			
 
 			rs.close();
 			cs.close();
@@ -150,12 +165,14 @@ public class DatabaseAccess {
 				
 				if(isBudgetRequest && rs.getDouble(4) > budget){
 					continue;
-				} else if(isHouseOnlyRequest || isFlatOnlyRequest || thisYearOnly || specificYear != 0){
-					ArrayList<Double> values = placesToRemove.get(rs.getString(1));
-					if(values != null && values.contains(rs.getString(5))) continue;
-				} 
-				else{
+				}else if (placesToRemove.containsKey(rs.getString(1))){
+					if(placesToRemove.get(rs.getString(1)).contains(rs.getDouble(5))){
+					continue;
+					}
+				}
 				
+				
+				System.out.println("here");
 				ArrayList<Double> houseValues = new ArrayList<Double>();
 				houseValues.add(rs.getDouble(2));
 				houseValues.add(rs.getDouble(3));
@@ -164,7 +181,7 @@ public class DatabaseAccess {
 				houseValues.add(weightedAverage);
 				houseValues.add(average);
 				message.addWeight(houseValues);
-				}			
+							
 
 			}
 
@@ -172,9 +189,6 @@ public class DatabaseAccess {
 			message.setMostExpensive(mostExpensive);
 
 			rs.close();
-			cs.close();
-			conn.close();
-
 			cs.close();
 			conn.close();
 		} catch (SQLException e) {
@@ -222,7 +236,7 @@ public class DatabaseAccess {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			// cs.setEscapeProcessing(true);
 			// cs.setQueryTimeout(120);
-			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude+")";
+			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 3)";
 			cs = conn.prepareStatement(SQL);
 			rs = cs.executeQuery();
 			while (rs.next()) {
@@ -241,8 +255,10 @@ public class DatabaseAccess {
 				houseInformation.add(rs.getString(9));
 				houseInformation.add(rs.getString(10));
 				message.addHouseEntryNew(houseInformation);
+
 				
 				if(size == 10){
+					System.out.println("here");
 					rs.last();
 				} else if(size > 10 & size < 20){
 					rs.previous();
@@ -291,5 +307,7 @@ public class DatabaseAccess {
 
 		return verifiedPostcodes;
 	}
+	
+
 
 }
