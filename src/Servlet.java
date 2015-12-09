@@ -42,7 +42,7 @@ public class Servlet extends HttpServlet {
 		String latitude = request.getParameter("latitude");
 		DatabaseAccess db = new DatabaseAccess();
 		if(request.getParameterMap().containsKey("budget")){
-			db.setbudget(Double.parseDouble(request.getParameter("budget")));
+			db.setbudget(Double.parseDouble(request.getParameter("budget").replaceAll(",","" )));
 			db.setIsBudgetRequest();		
 		}
 		

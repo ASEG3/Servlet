@@ -14,7 +14,7 @@ import messageUtils.Message;
 
 public class DatabaseAccess {
 
-	private final String DB_URL = "jdbc:mysql://52.10.109.23/ase";
+	private final String DB_URL = "jdbc:mysql://52.35.222.167/ase";
 	private final String USER = "admin";
 	private final String PASS = "g3mjhmts"; // Not good practice, I know
 	private Message message;
@@ -29,6 +29,7 @@ public class DatabaseAccess {
 	
 	public DatabaseAccess() {
 		message = new Message();
+		System.out.println("database initilized");
 
 	}
 	
@@ -92,7 +93,10 @@ public class DatabaseAccess {
 			// cs.setQueryTimeout(120);
 			String SQL = "CALL getSurroundingProperties(" + longitude + ", " + latitude + ", 3)";
 			cs = conn.prepareStatement(SQL);
+			cs.setFetchSize(100);
 			rs = cs.executeQuery();
+			System.out.println("Executing query");
+			
 			while (rs.next()) {
 				
 				
@@ -145,13 +149,14 @@ public class DatabaseAccess {
 				message.addHouseEntryNew(houseInformation);
 				}
 
-			
+			System.out.println(message.getSizeOfNewHouses());
 
 			rs.close();
 			cs.close();
 
 			SQL = "CALL getWeightedLatLong(" + longitude + ", " + latitude + ", 3)";
 			cs = conn.prepareStatement(SQL);
+			cs.setFetchSize(100);
 			rs = cs.executeQuery();
 
 			double mostExpensive = 0;
@@ -193,6 +198,8 @@ public class DatabaseAccess {
 							
 
 			}
+			
+			System.out.println(message.getSizeOfWeighted());
 
 			message.setLeastExpensive(leastExpensive);
 			message.setMostExpensive(mostExpensive);
