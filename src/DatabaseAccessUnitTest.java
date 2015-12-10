@@ -52,6 +52,20 @@ public class DatabaseAccessUnitTest {
 		}
 
 	}
+	
+	@Test
+	public void testMostExpensiveComparisonValue(){
+		//Assume there aren't many houses more than 1 milllion
+		int randomBudgetLimit = random.nextInt(1000000);
+		database.setbudget(randomBudgetLimit);
+		database.setIsBudgetRequest();
+		database.runQueries(longitude, latitude);
+		Message message = database.getMessage();
+		
+		assertTrue(message.getMostExpensive() <= randomBudgetLimit);
+		
+
+	}
 
 
 	//Test budget with a comma

@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,13 +39,26 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		OutputStream outputStream = response.getOutputStream();
+		
 		String longitude = request.getParameter("longitude");
 		String latitude = request.getParameter("latitude");
+		if(longitude == null || latitude == null){
+			
+			response.sendError(500);
+			PrintWriter output = response.getWriter();
+			output.close();
+			output.flush();
+		} else {
+			
+			
+		OutputStream outputStream = response.getOutputStream();	
+		if(validateLongLat(longitude, latitude)){
 		DatabaseAccess db = new DatabaseAccess();
 		if(request.getParameterMap().containsKey("budget")){
+			if(request.getParameter("budget") != null){
 			db.setbudget(Double.parseDouble(request.getParameter("budget").replaceAll(",","" )));
-			db.setIsBudgetRequest();		
+			db.setIsBudgetRequest();	
+			}
 		}
 		
 		//Set personalised settings
@@ -64,8 +79,11 @@ public class Servlet extends HttpServlet {
 		System.out.println(fullMessage.getHouse().size());
 		System.out.println(fullMessage.getHouses().size());
 		outputStream.write(fromJavaToByteArray(fullMessage));
+		} 
+		
 		outputStream.close();
 		outputStream.flush();
+		}
 
 	}
 
@@ -79,8 +97,16 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		hasConnected();
+		
+		
+		
+		if(request.getParameter("MAC") == null || request.getParameter("ENTRY") == null){
+			response.sendError(500);
+			PrintWriter output = response.getWriter();
+			output.close();
+			output.flush();
+		} else {
+			hasConnected();
 		PrintWriter output = response.getWriter();
 		String fileName = request.getParameter("MAC");
 		Boolean foundFile = findFile(fileName + ".txt", new File(getServletContext().getRealPath("/")));
@@ -88,6 +114,7 @@ public class Servlet extends HttpServlet {
 		output.write("Message received!");
 		output.close();
 		output.flush();
+		}
 	}
 
 	protected void saveFile(String fileName, String entry, String date, Boolean foundFile)
@@ -133,7 +160,7 @@ public class Servlet extends HttpServlet {
 	}
 
 	protected void hasConnected() throws IOException {
-
+		System.out.println("here!!!");
 		File outputFile = new File(getServletContext().getRealPath("/") + "connections.txt");
 		FileWriter fw = new FileWriter(outputFile, true);
 
@@ -143,7 +170,18 @@ public class Servlet extends HttpServlet {
 			sb.append(new Date().toString());
 			fw.write(sb.toString());
 		} finally {
+			System.out.println("here!!! finishing");
 			fw.close();
 		}
+	}
+	
+	protected boolean validateLongLat(String longitude, String latitude){
+		
+		String regex = "^([-+]?\\d{1,2}([.]\\d+)?),\\s*([-+]?\\d{1,3}([.]\\d+)?)$";
+		String longLat = longitude + ", " + latitude;
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(longLat);
+		return matcher.matches();
+	
 	}
 }

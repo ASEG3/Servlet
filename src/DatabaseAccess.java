@@ -29,16 +29,11 @@ public class DatabaseAccess {
 	
 	public DatabaseAccess() {
 		message = new Message();
-		System.out.println("database initilized");
+		System.out.println("Database initialized");
 
 	}
 	
-	public static void main(String[] args){
-		DatabaseAccess db = new DatabaseAccess();
-		db.getMostAndLeastExpensivePostCodes("51.117930736089", "-0.207110183901943");
-		System.out.println(db.getMessage().getSizeOfNewHouses());
-		System.out.println(db.getMessage().getSizeOfWeighted());
-	}
+
 	
 	public void setbudget(double budget){
 		this.budget = budget;
@@ -170,8 +165,12 @@ public class DatabaseAccess {
 
 			while (rs.next()) {
 
-				if (rs.getRow() == 1) {
+				if (rs.getRow() == 1 && !isBudgetRequest) {
 					mostExpensive = rs.getDouble(4);
+				} else {
+					if(mostExpensive == 0 && rs.getDouble(4) <= budget){
+						mostExpensive = rs.getDouble(4);
+					}
 				}
 				
 				String postcode = rs.getString(1);
