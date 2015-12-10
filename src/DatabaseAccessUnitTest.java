@@ -48,7 +48,7 @@ public class DatabaseAccessUnitTest {
 		for(int i = 0; i < weights.size(); i++){
 			double priceSold = weights.get(i).get(3);
 			System.out.println(priceSold);
-			assertTrue(priceSold <= randomBudgetLimit);
+			assertTrue("sold for " +priceSold,priceSold <= randomBudgetLimit);
 		}
 
 	}
