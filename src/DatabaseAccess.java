@@ -117,7 +117,6 @@ public class DatabaseAccess {
 					int dateSold = Integer.parseInt(rs.getString(9).substring(0,4));
 					int currentYear = calendar.get(Calendar.YEAR);
 					if(dateSold != currentYear){
-						System.out.println("adding it");
 						incrementFilterValue(postcode);
 						continue;
 					} 
