@@ -116,6 +116,7 @@ public class DatabaseAccess {
 				} else if(thisYearOnly){
 					int dateSold = Integer.parseInt(rs.getString(9).substring(0,4));
 					int currentYear = calendar.get(Calendar.YEAR);
+	
 					if(dateSold != currentYear){
 						incrementFilterValue(postcode);
 						continue;
@@ -128,7 +129,7 @@ public class DatabaseAccess {
 					}
 				}
 
-
+				System.out.println("adding the year: " + rs.getString(9));
 				ArrayList<String> houseInformation = new ArrayList<String>();
 				houseInformation.add(rs.getString(1));
 				houseInformation.add(rs.getString(2));

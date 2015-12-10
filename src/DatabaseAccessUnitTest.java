@@ -175,13 +175,14 @@ public class DatabaseAccessUnitTest {
 		//Budget between 1 and 500000
 		int randomBudgetLimit = random.nextInt(500000);
 		database.setThisYearOnly();
-		database.setIsBudgetRequest();
+		//database.setIsBudgetRequest();
+		//database.setbudget(randomBudgetLimit);
 		database.runQueries(longitude, latitude);
 		Message message = database.getMessage();
 		ArrayList<ArrayList<String>> houses = message.getHouses();
 		for(int i = 0; i < houses.size(); i++){
 
-			assertTrue(houses.get(i).get(7).substring(0, 4).equals("2015"));
+			assertTrue(houses.get(i).get(8).substring(0, 4).equals("2015"));
 			assertFalse(Integer.parseInt(houses.get(i).get(7)) > randomBudgetLimit);
 		}
 

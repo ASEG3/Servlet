@@ -315,21 +315,19 @@ public class ServletTest {
 		int randomBudgetLimit = random.nextInt(500000);
 		request.addParameter("longitude", longitude);
 		request.addParameter("latitude", latitude);
-		request.addParameter("thisYearOnly", String.valueOf(randomBudgetLimit));
-		request.addParameter("flatsOnly", "");
+		request.addParameter("thisYearOnly", "");
+		request.addParameter("budget", String.valueOf(randomBudgetLimit));
 		servlet.doGet(request, response);
 		Message message = null;
         Object container = SerializationUtils.deserialize(response.getContentAsByteArray());
 	    message = (Message) container; 
 		ArrayList<ArrayList<String>> houses = message.getHouses();
 		for(int i = 0; i < houses.size(); i++){
-			String value = houses.get(i).get(7).substring(0, 4);
-			assertTrue(houses.get(i).get(7).substring(0, 4).equals("2015"));
-			if(!value.equals("2015")){
-				System.out.println(value);
-			}
+
+			assertTrue(houses.get(i).get(8).substring(0, 4).equals("2015"));
 			assertFalse(Integer.parseInt(houses.get(i).get(7)) > randomBudgetLimit);
 		}
+		System.out.println("ended");
 
 	}
 
